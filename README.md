@@ -8,6 +8,14 @@
 
 End-to-end bearing fault diagnosis system using the CWRU (Case Western Reserve University) benchmark dataset. Classifies rolling-element bearing vibration signals into 10 fault categories using hand-crafted features + classical ML and a 1-D CNN, served through a production FastAPI layer with live drift monitoring.
 
+## Demo
+
+**Live Predictor — CNN classifies a real test window with 97.4% confidence**
+![Live Predictor](outputs/figures/dashboard_predictor.png)
+
+**Production API — 5 endpoints across System, Model, Inference and Monitoring**
+![API Swagger](outputs/figures/api_swagger.png)
+
 ---
 
 ## Problem Statement
