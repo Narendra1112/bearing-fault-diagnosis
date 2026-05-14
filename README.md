@@ -1,13 +1,3 @@
----
-title: Bearing Fault Diagnosis
-emoji: 🔧
-colorFrom: blue
-colorTo: red
-sdk: docker
-app_port: 7860
-pinned: false
----
-
 # Bearing Fault Diagnosis
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
