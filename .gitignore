@@ -3,6 +3,7 @@ data/
 
 # Trained model weights
 models/*.pth
+models/*.pkl
 
 # Virtual environment
 venv/
