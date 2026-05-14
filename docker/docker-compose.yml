@@ -1,0 +1,63 @@
+version: "3.9"
+
+# ── Bearing Fault Diagnosis — Docker Compose ─────────────────────────────────
+# Run from the PROJECT ROOT:
+#   docker compose -f docker/docker-compose.yml up --build
+#
+# Services
+# ─────────
+#  api     → http://localhost:8000   FastAPI inference + monitoring
+#  mlflow  → http://localhost:5000   MLflow experiment tracking UI
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── FastAPI inference service ───────────────────────────────────────────────
+  api:
+    build:
+      context: ..                      # project root as build context
+      dockerfile: docker/Dockerfile
+    container_name: bearing_api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Shared MLflow run storage (both services read/write the same dir)
+      - mlruns_data:/mlruns
+    environment:
+      - MLFLOW_TRACKING_URI=/mlruns
+    depends_on:
+      - mlflow
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ── MLflow tracking server ──────────────────────────────────────────────────
+  mlflow:
+    image: python:3.11-slim
+    container_name: bearing_mlflow
+    command: >
+      sh -c "pip install mlflow --quiet &&
+             mlflow server
+               --host 0.0.0.0
+               --port 5000
+               --backend-store-uri /mlruns
+               --default-artifact-root /mlruns"
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlruns_data:/mlruns
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+volumes:
+  mlruns_data:
+    driver: local

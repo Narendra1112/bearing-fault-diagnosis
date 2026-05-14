@@ -1,0 +1,34 @@
+# Data (large raw/processed files — not tracked)
+data/
+
+# Trained model weights
+models/*.pth
+
+# Virtual environment
+venv/
+.venv/
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# MLflow run artifacts
+mlruns/
+
+# Environment variables
+.env
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Uvicorn logs (generated at runtime)
+uvicorn.log
+uvicorn_err.log
