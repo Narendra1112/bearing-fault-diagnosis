@@ -1,3 +1,13 @@
+---
+title: Bearing Fault Diagnosis
+emoji: 🔧
+colorFrom: blue
+colorTo: red
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # Bearing Fault Diagnosis
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue?logo=python)
@@ -35,7 +45,7 @@ Signals are segmented into **1024-sample windows** (50% overlap) and per-window 
 
 ```
 data/raw/*.mat
-    └─► preprocess.py   — segment + normalise → data/processed/*.npz
+    └─► preprocess.py   — segment + normalise -> data/processed/*.npz
             ├─► features.py     — 11 hand-crafted features per window
             │       └─► train_ml.py   — Random Forest + SVM
             └─► train_cnn.py    — 1-D CNN (PyTorch)
@@ -52,12 +62,12 @@ data/raw/*.mat
 | Layer        | Output Shape  |
 |--------------|---------------|
 | Input        | (1, 1024)     |
-| ConvBlock ×4 | (256, 64)     |
+| ConvBlock x4 | (256, 64)     |
 | GlobalAvgPool| (256, 1)      |
-| FC 256→128   | (128,)        |
-| FC 128→10    | (10,)         |
+| FC 256->128  | (128,)        |
+| FC 128->10   | (10,)         |
 
-Each ConvBlock: `Conv1d → BatchNorm → ReLU → Dropout → MaxPool`  
+Each ConvBlock: `Conv1d -> BatchNorm -> ReLU -> Dropout -> MaxPool`
 Total parameters: **168,490**
 
 ---
@@ -74,63 +84,7 @@ CNN training stopped at epoch 17 (best validation accuracy reached at epoch 7).
 
 ---
 
-## Installation
-
-```bash
-# Clone the repo
-git clone https://github.com/Narendra1112/bearing-fault-diagnosis.git
-cd bearing-fault-diagnosis
-
-# Create and activate a virtual environment
-python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # Linux/macOS
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Download data and train
-
-```bash
-# Download CWRU .mat files into data/raw/
-python src/download_data.py
-
-# Preprocess → segment + normalise
-python src/preprocess.py
-
-# Extract hand-crafted features
-python src/features.py
-
-# Train classical ML models
-python src/train_ml.py
-
-# Train 1-D CNN
-python src/train_cnn.py
-```
-
----
-
-## Running the Dashboard
-
-```bash
-streamlit run src/dashboard.py
-```
-
-Opens at **http://localhost:8501** with four sections:
-
-- **Raw Signal Viewer** — pick a fault class, plot the vibration signal
-- **FFT Spectrum** — frequency-domain view of the selected signal
-- **Model Comparison** — bar chart: RF vs SVM vs CNN accuracy
-- **Live Predictor** — load a random test window, run CNN inference, compare predicted vs actual
-
----
-
-## Running the API
-
-```bash
-uvicorn src.api:app --port 8000
-```
+## API Endpoints
 
 | Endpoint       | Method | Description                              |
 |----------------|--------|------------------------------------------|
@@ -140,23 +94,50 @@ uvicorn src.api:app --port 8000
 | `/metrics`     | GET    | Rolling summary of last 100 predictions  |
 | `/drift`       | GET    | Data-drift status vs training reference  |
 
-Interactive docs: **http://localhost:8000/docs**
+Interactive docs: **/docs**
 
 ### Sample request
 
 ```bash
-curl -X POST http://localhost:8000/predict \
+curl -X POST <space-url>/predict \
   -H "Content-Type: application/json" \
   -d '{"signal": [0.123, -0.456, ...]}'   # 1024 floats
 ```
 
-### Docker
+---
+
+## Installation (local)
 
 ```bash
-docker compose -f docker/docker-compose.yml up --build
+git clone https://github.com/Narendra1112/bearing-fault-diagnosis.git
+cd bearing-fault-diagnosis
+
+python -m venv venv
+venv\Scripts\activate          # Windows
+# source venv/bin/activate     # Linux/macOS
+
+pip install -r requirements.txt
 ```
 
-Starts the API on `:8000` and MLflow UI on `:5000`.
+### Download data and train
+
+```bash
+python src/download_data.py    # download CWRU .mat files
+python src/preprocess.py       # segment + normalise
+python src/features.py         # extract features
+python src/train_ml.py         # Random Forest + SVM
+python src/train_cnn.py        # 1-D CNN
+```
+
+### Run locally
+
+```bash
+# API
+uvicorn src.api:app --port 8000
+
+# Dashboard
+streamlit run src/dashboard.py
+```
 
 ---
 
@@ -189,6 +170,7 @@ bearing-fault-diagnosis/
 ├── docker/
 │   ├── Dockerfile
 │   └── docker-compose.yml
+├── Dockerfile        # Hugging Face Spaces entry point
 ├── models/           # Saved weights (git-ignored)
 ├── notebooks/
 │   └── 01_eda.ipynb
@@ -206,6 +188,7 @@ bearing-fault-diagnosis/
 │   ├── test_api.py
 │   ├── train_cnn.py
 │   └── train_ml.py
+├── render.yaml       # Render deploy config (reference)
 └── requirements.txt
 ```
 
