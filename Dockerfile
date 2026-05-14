@@ -22,7 +22,10 @@ RUN pip install --no-cache-dir \
 # ── Copy only what the API needs at runtime ───────────────────────────────────
 COPY src/            ./src/
 COPY models/         ./models/
-COPY data/processed/ ./data/processed/
+COPY start.sh        ./start.sh
+RUN chmod +x ./start.sh
+# data/processed/ is git-ignored; create empty dir so app starts cleanly.
+RUN mkdir -p ./data/processed
 
 # ── Runtime config ────────────────────────────────────────────────────────────
 ENV PYTHONUNBUFFERED=1
@@ -31,8 +34,5 @@ ENV MLFLOW_TRACKING_URI=/tmp/mlruns
 # HF Spaces expects port 7860
 EXPOSE 7860
 
-CMD ["uvicorn", "src.api:app", \
-     "--host", "0.0.0.0", \
-     "--port", "7860", \
-     "--workers", "1", \
-     "--log-level", "info"]
+# start.sh downloads best_cnn.pth from HF Model repo then launches uvicorn
+CMD ["bash", "start.sh"]

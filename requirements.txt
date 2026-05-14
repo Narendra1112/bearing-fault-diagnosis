@@ -40,3 +40,6 @@ mlflow>=2.8.0
 
 # API testing
 requests>=2.31.0
+
+# HF Hub (model download at startup in HF Spaces)
+huggingface_hub>=0.20.0
