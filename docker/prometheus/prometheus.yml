@@ -1,0 +1,31 @@
+global:
+  scrape_interval:     15s
+  evaluation_interval: 15s
+  scrape_timeout:      10s
+
+# ── Alert rules ──────────────────────────────────────────────────────────────
+rule_files:
+  - "alerts.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []   # configure alertmanager endpoint here for production
+
+# ── Scrape configs ────────────────────────────────────────────────────────────
+scrape_configs:
+
+  - job_name: "bearing-api"
+    static_configs:
+      - targets: ["api:8000"]
+    metrics_path: /metrics
+    scrape_interval: 15s
+    scrape_timeout:  10s
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label:  instance
+        replacement:   bearing-api
+
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]

@@ -1,0 +1,61 @@
+{
+  "evaluation_type": "cross_condition",
+  "checkpoint": "C:\\Users\\poluk\\Desktop\\AI_ML_Projects\\bearing-fault-diagnosis\\models\\best_cnn.pth",
+  "conditions": {
+    "1797": {
+      "available": true,
+      "rpm": 1797,
+      "n_windows": 2605,
+      "overall_accuracy": 0.9996,
+      "per_class_min": 0.9958,
+      "per_class": {
+        "normal": 1.0,
+        "ball_0.007": 1.0,
+        "ball_0.014": 0.9958,
+        "ball_0.021": 1.0,
+        "ir_0.007": 1.0,
+        "ir_0.014": 1.0,
+        "ir_0.021": 1.0,
+        "or_0.007": 1.0,
+        "or_0.014": 1.0,
+        "or_0.021": 1.0
+      }
+    },
+    "1772": {
+      "available": true,
+      "rpm": 1772,
+      "n_windows": 944,
+      "overall_accuracy": 1.0,
+      "per_class_min": 1.0,
+      "per_class": {
+        "normal": 1.0
+      }
+    },
+    "1750": {
+      "available": true,
+      "rpm": 1750,
+      "n_windows": 944,
+      "overall_accuracy": 1.0,
+      "per_class_min": 1.0,
+      "per_class": {
+        "normal": 1.0
+      }
+    },
+    "1730": {
+      "available": true,
+      "rpm": 1730,
+      "n_windows": 947,
+      "overall_accuracy": 1.0,
+      "per_class_min": 1.0,
+      "per_class": {
+        "normal": 1.0
+      }
+    }
+  },
+  "summary": {
+    "mean_accuracy": 0.9999,
+    "min_accuracy": 0.9996,
+    "max_accuracy": 1.0,
+    "n_conditions_evaluated": 4
+  }
+}

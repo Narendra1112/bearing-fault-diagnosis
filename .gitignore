@@ -4,6 +4,16 @@ data/
 # Trained model weights
 models/*.pth
 models/*.pkl
+models/*.onnx
+models/*.onnx.data
+
+# Local prediction DB (SQLite, generated at runtime)
+*.db
+
+# Scratch / runtime logs
+api_new.log
+api_new_err.log
+eval_final.log
 
 # Virtual environment
 venv/
