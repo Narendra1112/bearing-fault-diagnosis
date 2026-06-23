@@ -1,41 +1,133 @@
 version: "3.9"
 
-# ── Bearing Fault Diagnosis — Docker Compose ─────────────────────────────────
+# ── Bearing Fault Diagnosis — Production Docker Compose ──────────────────────
 # Run from the PROJECT ROOT:
 #   docker compose -f docker/docker-compose.yml up --build
 #
 # Services
-# ─────────
-#  api     → http://localhost:8000   FastAPI inference + monitoring
-#  mlflow  → http://localhost:5000   MLflow experiment tracking UI
+#   api        -> http://localhost:8000   FastAPI inference + monitoring
+#   postgres   -> localhost:5432          Prediction persistence (prod DB)
+#   redis      -> localhost:6379          Rate limiting + caching
+#   prometheus -> http://localhost:9090   Scrapes /metrics every 15s
+#   grafana    -> http://localhost:3000   Pre-loaded bearing dashboard
+#   mlflow     -> http://localhost:5000   Experiment tracking UI
 # ─────────────────────────────────────────────────────────────────────────────
 
 services:
 
-  # ── FastAPI inference service ───────────────────────────────────────────────
+  # ── FastAPI inference service ─────────────────────────────────────────────
   api:
     build:
-      context: ..                      # project root as build context
+      context: ..
       dockerfile: docker/Dockerfile
     container_name: bearing_api
     ports:
       - "8000:8000"
-    volumes:
-      # Shared MLflow run storage (both services read/write the same dir)
-      - mlruns_data:/mlruns
     environment:
-      - MLFLOW_TRACKING_URI=/mlruns
+      - ENVIRONMENT=production
+      - LOG_LEVEL=INFO
+      - DATABASE_URL=postgresql+asyncpg://bearing:bearing@postgres:5432/bearing_db
+      - REDIS_URL=redis://redis:6379/0
+      - MLFLOW_URI=http://mlflow:5000
+      - MODEL_PATH=/app/models/best_cnn.pth
+      - ONNX_MODEL_PATH=/app/models/best_cnn.onnx
+      - TRAIN_DATA_PATH=/app/data/processed/train.npz
+      - TEST_DATA_PATH=/app/data/processed/test.npz
+      # Required: set API_KEY in your shell/.env before `docker compose up`.
+      # ENVIRONMENT=production refuses to start with an empty key (fail-fast).
+      - API_KEY=${API_KEY:?Set API_KEY in your environment before starting}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-}
+      - MODEL_VERSION=${MODEL_VERSION:-v1.0}
+      - RATE_LIMIT_RPM=100
+      - MAX_BATCH_SIZE=32
+      - DRIFT_ZSCORE_THRESHOLD=2.0
+      - DRIFT_CUSUM_H=5.0
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+    volumes:
+      - mlruns_data:/mlruns
     depends_on:
-      - mlflow
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 40s
 
-  # ── MLflow tracking server ──────────────────────────────────────────────────
+  # ── PostgreSQL ─────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: bearing_postgres
+    environment:
+      POSTGRES_USER:     bearing
+      POSTGRES_PASSWORD: bearing
+      POSTGRES_DB:       bearing_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bearing -d bearing_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Redis ──────────────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: bearing_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # ── Prometheus ─────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: bearing_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # ── Grafana ────────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: bearing_grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+  # ── MLflow tracking server ─────────────────────────────────────────────────
   mlflow:
     image: python:3.11-slim
     container_name: bearing_mlflow
@@ -51,13 +143,10 @@ services:
     volumes:
       - mlruns_data:/mlruns
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 40s
 
 volumes:
-  mlruns_data:
-    driver: local
+  postgres_data:   { driver: local }
+  redis_data:      { driver: local }
+  prometheus_data: { driver: local }
+  grafana_data:    { driver: local }
+  mlruns_data:     { driver: local }

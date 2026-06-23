@@ -1,0 +1,27 @@
+{
+  "evaluation_type": "sensor_shift_robustness",
+  "baseline_accuracy": 1.0,
+  "affine_gain_offset": {
+    "protocol": "per-window gain & DC offset, no re-normalisation",
+    "results": {
+      "clean": 1.0,
+      "gain+-10%_off0.05": 1.0,
+      "gain+-20%_off0.10": 1.0,
+      "gain+-30%_off0.15": 0.9963
+    },
+    "headline_gain20pct_offset0.1": 1.0,
+    "finding": "Model is ~invariant to affine gain/offset because its first layer is Conv1d->BatchNorm1d, which removes global mean/scale. This is the wrong test to quote for sensor mismatch."
+  },
+  "frequency_response": {
+    "protocol": "random spectral tilt + mounting resonance (dB), no re-normalisation",
+    "results": {
+      "mild_tilt3dB_res4dB": 0.9975,
+      "moderate_tilt6dB_res8dB": 0.9547,
+      "strong_tilt9dB_res12dB": 0.8444
+    },
+    "combined_with_gain_offset": 0.9522,
+    "headline_moderate": 0.9547,
+    "finding": "Frequency-selective coloring models a different sensor / mounting and CANNOT be undone by BatchNorm, so accuracy drops meaningfully. Quote the 'moderate' number as the honest sensor-mismatch result."
+  },
+  "headline_sensor_mismatch": 0.9547
+}

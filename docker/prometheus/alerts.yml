@@ -1,0 +1,66 @@
+groups:
+  - name: bearing_api_alerts
+    rules:
+
+      # ── Drift rate > 10% of requests in 5 min ──────────────────────────────
+      - alert: HighDriftRate
+        expr: |
+          rate(drift_detections_total[5m]) /
+          rate(inference_requests_total[5m]) > 0.10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High drift detection rate"
+          description: >
+            More than 10% of inference requests triggered drift detection
+            in the last 5 minutes. Possible distributional shift in incoming signals.
+
+      # ── p95 latency > 500ms ────────────────────────────────────────────────
+      - alert: HighInferenceLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(inference_latency_seconds_bucket[5m])
+          ) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High inference p95 latency"
+          description: >
+            p95 inference latency exceeded 500ms for 2 minutes.
+            Check CPU load and batch queue depth.
+
+      # ── Bearing health index < 0.3 ─────────────────────────────────────────
+      - alert: LowBearingHealth
+        expr: bearing_health_index < 0.3
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical bearing health index"
+          description: >
+            Bearing health index dropped below 0.3 (severe fault territory).
+            Immediate physical inspection recommended.
+
+      # ── No inference requests for 5 min ───────────────────────────────────
+      - alert: NoInferenceRequests
+        expr: rate(inference_requests_total[5m]) == 0
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "No inference requests"
+          description: "No inference requests received in the last 5 minutes."
+
+      # ── High error rate ────────────────────────────────────────────────────
+      - alert: HighErrorRate
+        expr: |
+          rate(inference_requests_total{status="error"}[5m]) /
+          rate(inference_requests_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High inference error rate"
+          description: "More than 5% of inference requests are returning errors."

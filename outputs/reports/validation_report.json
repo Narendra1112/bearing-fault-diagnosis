@@ -1,0 +1,60 @@
+{
+  "verdict": "PASS",
+  "n_checks": 5,
+  "n_passed": 5,
+  "n_failed": 0,
+  "checkpoint": "C:\\Users\\poluk\\Desktop\\AI_ML_Projects\\bearing-fault-diagnosis\\models\\best_cnn.pth",
+  "checks": [
+    {
+      "check": "test_accuracy",
+      "passed": true,
+      "value": 1.0,
+      "threshold": 0.95,
+      "detail": "Accuracy 1.0000 OK threshold 0.95"
+    },
+    {
+      "check": "per_class_accuracy",
+      "passed": true,
+      "value": 1.0,
+      "threshold": 0.85,
+      "worst_class": "normal",
+      "per_class": {
+        "normal": 1.0,
+        "ball_0.007": 1.0,
+        "ball_0.014": 1.0,
+        "ball_0.021": 1.0,
+        "ir_0.007": 1.0,
+        "ir_0.014": 1.0,
+        "ir_0.021": 1.0,
+        "or_0.007": 1.0,
+        "or_0.014": 1.0,
+        "or_0.021": 1.0
+      },
+      "detail": "Worst class 'normal': 1.0000"
+    },
+    {
+      "check": "latency_p95",
+      "passed": true,
+      "value_p95_ms": 20.0,
+      "value_p50_ms": 9.13,
+      "threshold_ms": 50.0,
+      "n_measurements": 100,
+      "detail": "p95=20.0ms  p50=9.1ms"
+    },
+    {
+      "check": "nan_inf_outputs",
+      "passed": true,
+      "n_tested": 100,
+      "n_bad_inputs": 0,
+      "detail": "All outputs finite"
+    },
+    {
+      "check": "onnx_parity",
+      "passed": true,
+      "max_diff": 1.2e-07,
+      "tolerance": 0.0001,
+      "n_inputs": 20,
+      "detail": "Max |pytorch - onnx| = 1.19e-07 (tol=1e-04)"
+    }
+  ]
+}

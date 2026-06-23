@@ -1,0 +1,127 @@
+{
+  "evaluation_type": "noise_robustness",
+  "checkpoint": "C:\\Users\\poluk\\Desktop\\AI_ML_Projects\\bearing-fault-diagnosis\\models\\best_cnn.pth",
+  "n_test_windows": 816,
+  "snr_levels_tested": [
+    30,
+    20,
+    15,
+    10,
+    5,
+    0
+  ],
+  "accuracy_threshold": 0.9,
+  "snr_threshold_below_90pct": 15,
+  "baseline_accuracy": 1.0,
+  "results_by_snr": {
+    "30dB": {
+      "snr_db": 30,
+      "overall_accuracy": 1.0,
+      "per_class": {
+        "normal": 1.0,
+        "ball_0.007": 1.0,
+        "ball_0.014": 1.0,
+        "ball_0.021": 1.0,
+        "ir_0.007": 1.0,
+        "ir_0.014": 1.0,
+        "ir_0.021": 1.0,
+        "or_0.007": 1.0,
+        "or_0.014": 1.0,
+        "or_0.021": 1.0
+      },
+      "per_class_min": 1.0,
+      "n_windows": 816
+    },
+    "20dB": {
+      "snr_db": 20,
+      "overall_accuracy": 0.9816,
+      "per_class": {
+        "normal": 1.0,
+        "ball_0.007": 0.9722,
+        "ball_0.014": 1.0,
+        "ball_0.021": 1.0,
+        "ir_0.007": 1.0,
+        "ir_0.014": 1.0,
+        "ir_0.021": 1.0,
+        "or_0.007": 1.0,
+        "or_0.014": 1.0,
+        "or_0.021": 0.6111
+      },
+      "per_class_min": 0.6111,
+      "n_windows": 816
+    },
+    "15dB": {
+      "snr_db": 15,
+      "overall_accuracy": 0.8615,
+      "per_class": {
+        "normal": 1.0,
+        "ball_0.007": 0.1667,
+        "ball_0.014": 0.8,
+        "ball_0.021": 1.0,
+        "ir_0.007": 1.0,
+        "ir_0.014": 1.0,
+        "ir_0.021": 0.8889,
+        "or_0.007": 0.0,
+        "or_0.014": 1.0,
+        "or_0.021": 0.0
+      },
+      "per_class_min": 0.0,
+      "n_windows": 816
+    },
+    "10dB": {
+      "snr_db": 10,
+      "overall_accuracy": 0.5993,
+      "per_class": {
+        "normal": 0.7137,
+        "ball_0.007": 0.0,
+        "ball_0.014": 0.1143,
+        "ball_0.021": 1.0,
+        "ir_0.007": 1.0,
+        "ir_0.014": 0.7143,
+        "ir_0.021": 0.0,
+        "or_0.007": 0.0,
+        "or_0.014": 1.0,
+        "or_0.021": 0.0
+      },
+      "per_class_min": 0.0,
+      "n_windows": 816
+    },
+    "5dB": {
+      "snr_db": 5,
+      "overall_accuracy": 0.1201,
+      "per_class": {
+        "normal": 0.0242,
+        "ball_0.007": 0.0,
+        "ball_0.014": 0.0,
+        "ball_0.021": 0.5278,
+        "ir_0.007": 0.9143,
+        "ir_0.014": 0.0,
+        "ir_0.021": 0.0,
+        "or_0.007": 0.0,
+        "or_0.014": 1.0,
+        "or_0.021": 0.0
+      },
+      "per_class_min": 0.0,
+      "n_windows": 816
+    },
+    "0dB": {
+      "snr_db": 0,
+      "overall_accuracy": 0.5748,
+      "per_class": {
+        "normal": 0.8508,
+        "ball_0.007": 0.0,
+        "ball_0.014": 0.0,
+        "ball_0.021": 0.0,
+        "ir_0.007": 0.3429,
+        "ir_0.014": 0.0,
+        "ir_0.021": 0.0,
+        "or_0.007": 0.0,
+        "or_0.014": 1.0,
+        "or_0.021": 0.0
+      },
+      "per_class_min": 0.0,
+      "n_windows": 816
+    }
+  },
+  "note": "CWRU is a clean lab dataset. Real industrial deployment would typically see 10-20dB SNR. The SNR threshold indicates the noise floor where this model requires signal filtering."
+}
