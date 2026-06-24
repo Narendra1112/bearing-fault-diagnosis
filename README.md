@@ -19,6 +19,37 @@ Built to the engineering standard expected by industrial-AI teams
 
 ---
 
+## Key Results
+
+| Evaluation | Accuracy |
+|---|---|
+| Same-condition (clean CWRU benchmark) | 100% |
+| Sensor placement shift simulation | 95.47% |
+| Noise robustness at 15dB SNR | ~86% |
+| Severity generalization (unseen fault size) | 66.71% |
+
+- p95 inference latency < 50ms
+- 62 passing tests
+- Full MLOps stack: CUSUM drift detection, PostgreSQL persistence, Prometheus monitoring, GitHub Actions CI/CD
+
+---
+
+## Dashboard & API Preview
+
+![API Authentication and Inference](outputs/figures/Swagger_ui_top.png)
+*Production FastAPI v2.0 — API key authentication, single and batch inference endpoints*
+
+![Full Endpoint Suite](outputs/figures/Swagger_ui_endpoints.png)
+*12 endpoints across Inference, Monitoring, Model Management, and System*
+
+![Streamlit Dashboard](outputs/figures/dashboard_predictor.png)
+*Live predictor — CNN classifies real test windows with per-class confidence scores*
+
+![Training History](outputs/figures/cnn_training_history.png)
+*1D-CNN training convergence — loss and accuracy across epochs with early stopping*
+
+---
+
 ## Why this is more than a classifier
 
 Most bearing-fault demos report "100% on CWRU" and stop there. That number is real
