@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import hmac
 
-from fastapi import Depends, Security
+from fastapi import Security
 from fastapi.security import APIKeyHeader
 
 from src.core.config import settings

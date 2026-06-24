@@ -46,7 +46,10 @@ from src.core.logger import get_logger
 log = get_logger(__name__)
 
 DriftSeverity = Literal["NONE", "WARNING", "CRITICAL"]
-DetectionMethod = Literal["zscore", "cusum", "mmd", "none"]
+DetectionMethod = Literal[
+    "zscore", "cusum", "mmd", "none", "non_finite", "flatline",
+    "zscore+cusum", "zscore+cusum+mmd",
+]
 
 FEATURES = ["kurtosis", "peak_to_peak", "crest_factor"]
 
@@ -289,12 +292,37 @@ class DriftDetector:
                 detection_method="none", n_checked=self._n_checked
             )
 
-        incoming = _signal_stats(np.asarray(signal, dtype=np.float64))
+        sig = np.asarray(signal, dtype=np.float64)
+
+        # ── Degenerate-input guards ───────────────────────────────────────
+        # A non-finite or flat-lined window produces undefined statistics
+        # (kurtosis = NaN), which would silently pass z-score/CUSUM as "no
+        # drift". Both are themselves anomalies a real monitor must surface.
+        with self._lock:
+            self._n_checked += 1
+            n = self._n_checked
+
+        if not np.all(np.isfinite(sig)):
+            log.warning("Non-finite signal in drift check", n_checked=n)
+            return DriftResult(
+                drifting=True, severity="CRITICAL",
+                detection_method="non_finite", n_checked=n,
+                flags={"_input": {"reason": "signal contains NaN or Inf values"}},
+            )
+        if float(sig.std()) < 1e-9:
+            log.warning("Flat-lined (constant) signal in drift check", n_checked=n)
+            return DriftResult(
+                drifting=True, severity="WARNING",
+                detection_method="flatline", n_checked=n,
+                flags={"_input": {"reason": "constant signal (zero variance) — possible sensor flatline"}},
+            )
+
+        incoming = _signal_stats(sig)
         flags: dict[str, dict[str, Any]] = {}
         methods_triggered: list[str] = []
 
         with self._lock:
-            self._n_checked += 1
+            # _n_checked already incremented in the degenerate-input guard above
             self._recent.append(incoming)
 
             # ── Method 1: Z-score ─────────────────────────────────────────

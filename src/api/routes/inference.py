@@ -33,7 +33,6 @@ from src.core.exceptions import (
     BatchSizeLimitError,
     ModelNotLoadedError,
     NonFiniteSignalError,
-    SignalLengthError,
 )
 from src.core.logger import get_logger
 from src.db.crud import save_prediction

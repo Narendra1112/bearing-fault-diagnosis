@@ -37,7 +37,7 @@ import torch
 from src.core.config import settings
 from src.core.logger import get_logger
 from src.ml.constants import CLASS_NAMES
-from src.ml.inference_engine import BearingCNN, InferenceEngine
+from src.ml.inference_engine import InferenceEngine
 
 log = get_logger(__name__)
 ROOT = Path(__file__).resolve().parent.parent.parent

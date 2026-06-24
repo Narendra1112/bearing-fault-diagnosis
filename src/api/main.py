@@ -23,11 +23,9 @@ import time
 import uuid
 from contextlib import asynccontextmanager
 
-import torch
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.middleware.auth import require_api_key          # noqa: F401 (registers)
 from src.api.routes import inference as inference_routes
 from src.api.routes import models as models_routes
 from src.api.routes import monitoring as monitoring_routes
@@ -44,7 +42,6 @@ from src.ml.constants import CLASS_NAMES
 from src.ml.inference_engine import BearingCNN, get_engine
 from src.ml.physics_features import PhysicsFeatureExtractor
 from src.ml.uncertainty import MCDropoutEstimator
-from src.monitoring.alerting import alerter           # noqa: F401 (starts thread)
 from src.monitoring.drift_detector import DriftDetector
 from src.monitoring.metrics import metrics
 

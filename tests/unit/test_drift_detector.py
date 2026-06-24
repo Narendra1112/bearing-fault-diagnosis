@@ -218,6 +218,27 @@ class TestDriftDetector:
             detector.check(sig)
         assert detector._n_checked == initial + 5
 
+    def test_flatline_signal_flagged(self, detector):
+        """A constant (zero-variance) window must be flagged, not silently passed."""
+        result = detector.check(np.ones(1024, dtype=np.float32))
+        assert result.drifting is True
+        assert result.severity == "WARNING"
+        assert result.detection_method == "flatline"
+
+    def test_non_finite_signal_flagged(self, detector):
+        """A NaN/Inf window must be flagged CRITICAL, not produce NaN stats."""
+        result = detector.check(np.full(1024, np.nan, dtype=np.float32))
+        assert result.drifting is True
+        assert result.severity == "CRITICAL"
+        assert result.detection_method == "non_finite"
+
+    def test_degenerate_inputs_still_increment_n_checked(self, detector):
+        """Edge-case guards must still count toward n_checked (no double count)."""
+        before = detector._n_checked
+        detector.check(np.ones(1024, dtype=np.float32))          # flatline
+        detector.check(np.full(1024, np.nan, dtype=np.float32))  # non-finite
+        assert detector._n_checked == before + 2
+
     def test_severity_none_when_clean(self, detector, rng):
         """Multiple clean signals should maintain NONE severity."""
         detector.reset()
